@@ -39,23 +39,21 @@ ld c,$bf
 otir
 
 
-    ;==============================================================
-    ; Clear VRAM
-    ;==============================================================
-    ; 1. Set VRAM write address to 0 by outputting $4000 ORed with $0000
-    ld a,$00
-    out ($bf),a
-    ld a,$40
-    out ($bf),a
-    ; 2. Output 16KB of zeroes
-    ld bc, $4000    ; Counter for 16KB of VRAM
-    ClearVRAMLoop:
-        ld a,$00    ; Value to write
-        out ($be),a ; Output to VRAM address, which is auto-incremented after each write
-        dec bc
-        ld a,b
-        or c
-        jp nz,ClearVRAMLoop
+; *** clear VRAM ***
+
+; set VRAM write address to 0 by outputting $4000 ORed with $0000
+ld hl, $4000
+call prepareVram
+
+; output 16KB of zeroes
+ld bc, $4000    ; Counter for 16KB of VRAM
+ClearVramLoop:
+    ld a,$00    ; Value to write
+    out ($be),a ; Output to VRAM address, which is auto-incremented after each write
+    dec bc
+    ld a,b
+    or c
+    jp nz,ClearVramLoop
 
 
 ; *** load color palette ***
@@ -69,15 +67,14 @@ ld hl,PaletteData ; source of data
 ld bc,PaletteDataEnd-PaletteData  ; counter for number of bytes to write
 call writeToVram
 
-    ;==============================================================
-    ; Load tiles (font)
-    ;==============================================================
-    ; 1. Set VRAM write address to tile index 0
-    ; by outputting $4000 ORed with $0000
-    ld a,$00
-    out ($bf),a
-    ld a,$40
-    out ($bf),a
+
+
+; **** load tiles (font) ***
+
+; set VRAM write address to tile index 0 by outputting $4000
+ld hl, $4000
+call prepareVram
+
     ; 2. Output tile data
     ld hl,FontData              ; Location of tile data
     ld bc,FontDataEnd-FontData  ; Counter for number of bytes to write
