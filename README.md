@@ -1,3 +1,3 @@
 # Game Gear Hello World
 
-![Screenshot Kega Fusion](GameGearHelloWorld.png)
+<img src="GameGearHelloWorld.png" alt="Screenshot Kega Fusion" width="50%" height="50%">
