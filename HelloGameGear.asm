@@ -16,7 +16,7 @@ banks 1
 ;==============================================================
 ; SDSC tag and SMS rom header
 ;==============================================================
-.sdsctag 1.2,"Hello World!","SMS programming tutorial program","Maxim"
+.sdsctag 1.2,"Hello World","Game Gear Assembler Version","szr"
 
 .bank 0 slot 0
 .org $0000
