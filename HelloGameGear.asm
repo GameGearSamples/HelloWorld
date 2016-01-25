@@ -1,6 +1,9 @@
-;==============================================================
+; A Z-80 assembler program writes "Hello World" to the Game Gear screen
+; inspired by Maxim’s World of Stuff (SMS Tutorial)
+; http://www.smspower.org/maxim/HowToProgram/Index
+
+
 ; WLA-DX banking setup
-;==============================================================
 .memorymap
 defaultslot 0
 slotsize $8000
@@ -13,40 +16,26 @@ banksize $8000
 banks 1
 .endro
 
-;==============================================================
 ; SDSC tag and SMS rom header
-;==============================================================
 .sdsctag 1.2,"Hello World","Game Gear Assembler Version","szr"
 
 .bank 0 slot 0
 .org $0000
-;==============================================================
+
 ; Boot section
-;==============================================================
-    di              ; disable interrupts
-    im 1            ; Interrupt mode 1
-    jp main         ; jump to main program
+;
+di      ; disable interrupts
+im 1    ; Interrupt mode 1
+ld sp, $dff0
 
-.org $0066
-;==============================================================
-; Pause button handler
-;==============================================================
-    ; Do nothing
-    retn
 
-;==============================================================
-; Main program
-;==============================================================
-main:
-    ld sp, $dff0
+; Set up VDP registers
+;
+ld hl,VdpData
+ld b,VdpDataEnd-VdpData
+ld c,$bf
+otir
 
-    ;==============================================================
-    ; Set up VDP registers
-    ;==============================================================
-    ld hl,VdpData
-    ld b,VdpDataEnd-VdpData
-    ld c,$bf
-    otir
 
     ;==============================================================
     ; Clear VRAM
@@ -173,14 +162,48 @@ MessageEnd:
 
 ; Color Palette Data:
 PaletteData:
-;    GGGGRRRR   ----BBBB (Format Game Gear)
+;    GGGGRRRR   ----BBBB (Format Game Gear, G=Green, R=Red, B=Blue)
 .db %00000000, %00001111 ; Color 0: Blue
 .db %00001111, %00000000 ; Color 1: Red
 PaletteDataEnd:
 
 ; VDP initialisation data
 VdpData:
-.db $04,$80,$00,$81,$ff,$82,$ff,$85,$ff,$86,$ff,$87,$00,$88,$00,$89,$ff,$8a
+.db %00000110 ; reg. 0, display and interrupt mode.
+              ; bit 4 = line interrupt (disabled).
+              ; 5 = blank left column (disabled).
+              ; 6 = hori. scroll inhibit (disabled).
+              ; 7 = vert. scroll inhibit (disabled).
+
+.db %10100001 ; reg. 1, display and interrupt mode.
+              ; bit 0 = zoomed sprites (enabled).
+              ; 1 = 8 x 16 sprites (disabled).
+              ; 5 = frame interrupt (enabled).
+              ; 6 = display (blanked).
+
+.db $ff       ; reg. 2, name table address.
+              ; $ff = name table at $3800.
+
+.db $ff       ; reg. 3, n.a.
+              ; always set it to $ff.
+
+.db $ff       ; reg. 4, n.a.
+              ; always set it to $ff.
+
+.db $ff       ; reg. 5, sprite attribute table.
+              ; $ff = sprite attrib. table at $3F00.
+
+.db $ff       ; reg. 6, sprite tile address.
+              ; $ff = sprite tiles in bank 2.
+
+.db %11110011 ; reg. 7, border color.
+              ; set to color 3 in bank 2.
+
+.db $00       ; reg. 8, horizontal scroll value = 0.
+.db $00       ; reg. 9, vertical scroll value = 0.
+.db $ff       ; reg. 10, raster line interrupt.
+              ; turn off line int. requests.
+
 VdpDataEnd:
 
 FontData:
