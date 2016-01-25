@@ -22,6 +22,7 @@ banks 1
 .bank 0 slot 0
 .org $0000
 
+
 ; Boot section
 ;
 di      ; disable interrupts
@@ -29,7 +30,8 @@ im 1    ; Interrupt mode 1
 ld sp, $dff0
 
 
-; Set up VDP registers
+
+; *** set up VDP registers ***
 ;
 ld hl,VdpData
 ld b,VdpDataEnd-VdpData
@@ -55,31 +57,17 @@ otir
         or c
         jp nz,ClearVRAMLoop
 
-    ;==============================================================
-    ; Load palette
-    ;==============================================================
-    ; 1. Set VRAM write address to CRAM (palette) address 0 (for palette index 0)
-    ; by outputting $c000 ORed with $0000
-    ld a,$00
-    out ($bf),a
-    ld a,$c0
-    out ($bf),a
-    ; 2. Output colour data
-    ld hl,PaletteData
-    ld bc,PaletteDataEnd-PaletteData  ; Counter for number of bytes to write
-    WritePaletteLoop:
-        ld a,(hl)        ; Get data byte
-        out ($be),a
-        inc hl           ; Add one to hl so it points to the next data byte
-        dec bc
-        ld a,b
-        or c
-        jp nz,WritePaletteLoop
-        
 
-    ;ld b,(PaletteDataEnd-PaletteData)
-    ;ld c,$be
-    ;otir
+; *** load color palette ***
+
+; set VRAM write address to CRAM (palette) address 0 (for palette index 0)
+ld hl, $c000
+call prepareVram
+
+; output palette data
+ld hl,PaletteData ; source of data
+ld bc,PaletteDataEnd-PaletteData  ; counter for number of bytes to write
+call writeToVram
 
     ;==============================================================
     ; Load tiles (font)
@@ -146,9 +134,37 @@ otir
     ld a,$81
     out ($bf),a
 
-    ; Infinite loop to stop program
+; Infinite loop to stop program
 Loop:
-     jp Loop
+    jp Loop
+
+
+; --------------------------------------------------------------
+; Subroutines
+; --------------------------------------------------------------
+
+; Set up vdp to receive data at vram address in HL.
+prepareVram:
+    push af
+    ld a,l
+    out ($bf),a
+    ld a,h
+    or $40
+    out ($bf),a
+    pop af
+    ret
+
+; Write BC amount of bytes from data source pointed to by HL.
+; Tip: Use prepareVram before calling.
+writeToVram:
+    ld a,(hl)
+    out ($be),a
+    inc hl
+    dec bc
+    ld a,c
+    or b
+    jp nz, writeToVram
+    ret
 
 ;==============================================================
 ; Data
