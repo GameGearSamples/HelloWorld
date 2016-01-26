@@ -39,35 +39,8 @@ ld c,$bf
 otir
 
 
-; *** clear VRAM ***
-
-; set VRAM write address to 0 by outputting $4000 ORed with $0000
-ld hl, $4000
-call prepareVram
-
-; output 16KB of zeroes
-ld bc, $4000    ; Counter for 16KB of VRAM
-ClearVramLoop:
-    ld a,$00    ; Value to write
-    out ($be),a ; Output to VRAM address, which is auto-incremented after each write
-    dec bc
-    ld a,b
-    or c
-    jp nz,ClearVramLoop
-
-
-; *** load color palette ***
-
-; set VRAM write address to CRAM (palette) address 0 (for palette index 0)
-ld hl, $c000
-call prepareVram
-
-; output palette data
-ld hl,PaletteData ; source of data
-ld bc,PaletteDataEnd-PaletteData  ; counter for number of bytes to write
-call writeToVram
-
-
+call clearVram
+call loadColorPalette
 
 ; **** load tiles (font) ***
 
@@ -140,6 +113,43 @@ Loop:
 ; Subroutines
 ; --------------------------------------------------------------
 
+; set Video RAM to 0
+clearVram:
+    ; set VRAM write address to 0 by outputting $4000 ORed with $0000
+    ld hl, $4000
+    call prepareVram
+
+    ; output 16KB of zeroes
+    ld bc, $4000    ; Counter for 16KB of VRAM
+    clearVramLoop:
+        ld a,$00    ; Value to write
+        out ($be),a ; Output to VRAM address, which is auto-incremented after each write
+        dec bc
+        ld a,b
+        or c
+        jp nz,clearVramLoop
+    ret
+
+
+; load color palette (two colors only).
+
+PaletteData:
+;    GGGGRRRR   ----BBBB (Format Game Gear, G=Green, R=Red, B=Blue)
+.db %00000000, %00001111 ; Color 0: Blue
+.db %00001111, %00000000 ; Color 1: Red
+PaletteDataEnd:
+
+loadColorPalette:
+    ; set VRAM write address to CRAM (palette) address 0 (for palette index 0)
+    ld hl, $c000
+    call prepareVram
+
+    ; output palette data
+    ld hl,PaletteData ; source of data
+    ld bc,PaletteDataEnd-PaletteData  ; counter for number of bytes to write
+    call writeToVram
+    ret
+
 ; Set up vdp to receive data at vram address in HL.
 prepareVram:
     push af
@@ -172,13 +182,6 @@ Message:
 ;   H   e   l   l   o   ,       W   o   r   l   d   !
 .dw $28,$45,$4c,$4c,$4f,$0c,$00,$37,$4f,$52,$4c,$44,$01
 MessageEnd:
-
-; Color Palette Data:
-PaletteData:
-;    GGGGRRRR   ----BBBB (Format Game Gear, G=Green, R=Red, B=Blue)
-.db %00000000, %00001111 ; Color 0: Blue
-.db %00001111, %00000000 ; Color 1: Red
-PaletteDataEnd:
 
 ; VDP initialisation data
 VdpData:
