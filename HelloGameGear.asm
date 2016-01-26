@@ -194,29 +194,17 @@ VdpData:
               ; 5 = frame interrupt (enabled).
               ; 6 = display (blanked).
 
-.db $ff       ; reg. 2, name table address.
-              ; $ff = name table at $3800.
-
-.db $ff       ; reg. 3, n.a.
-              ; always set it to $ff.
-
-.db $ff       ; reg. 4, n.a.
-              ; always set it to $ff.
-
+.db $ff       ; reg. 2, name table address. $ff = name table at $3800.
+.db $ff       ; reg. 3, n.a., always set it to $ff.
+.db $ff       ; reg. 4, n.a., always set it to $ff.
 .db $ff       ; reg. 5, sprite attribute table.
-              ; $ff = sprite attrib. table at $3F00.
-
 .db $ff       ; reg. 6, sprite tile address.
-              ; $ff = sprite tiles in bank 2.
-
 .db %11110011 ; reg. 7, border color.
               ; set to color 3 in bank 2.
 
 .db $00       ; reg. 8, horizontal scroll value = 0.
 .db $00       ; reg. 9, vertical scroll value = 0.
-.db $ff       ; reg. 10, raster line interrupt.
-              ; turn off line int. requests.
-
+.db $ff       ; reg. 10, raster line interrupt. Turn off line int. requests.
 VdpDataEnd:
 
 FontData:
