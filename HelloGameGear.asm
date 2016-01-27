@@ -4,9 +4,11 @@
 
 
 ;--( ROM Setup )---------------------------------------------------------------
+;
+; see http://www.villehelin.com/wla.txt for WLA-DX directives
 
-; SDSC tag and SMS rom header
-.sdsctag 1.2,"Hello World","Game Gear Assembler Version","szr"
+; SDSC tag and GG rom header
+.sdsctag 1.0, "Hello World", "Game Gear Assembler Version", "szr"
 
 ; WLA-DX banking setup
 .memorymap
@@ -67,9 +69,9 @@ main:
     ld a,$81
     out ($bf),a
 
-; Infinite loop to stop program
-Loop:
-    jp Loop
+
+    InfiniteLoop:
+        jp InfiniteLoop
 
 
 ;--( Subroutines )-------------------------------------------------------------
