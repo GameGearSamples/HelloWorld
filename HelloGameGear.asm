@@ -29,16 +29,7 @@ di      ; disable interrupts
 im 1    ; Interrupt mode 1
 ld sp, $dff0
 
-
-
-; *** set up VDP registers ***
-;
-ld hl,VdpData
-ld b,VdpDataEnd-VdpData
-ld c,$bf
-otir
-
-
+call setUpVdpRegisters
 call clearVram
 call loadColorPalette
 
@@ -89,6 +80,15 @@ Loop:
 ; --------------------------------------------------------------
 ; Subroutines
 ; --------------------------------------------------------------
+
+; setUpVdpRegisters
+;
+setUpVdpRegisters:
+    ld hl,VdpData
+    ld b,VdpDataEnd-VdpData
+    ld c,$bf
+    otir
+    ret
 
 ; clearVram
 ;
