@@ -3,6 +3,11 @@
 ; http://www.smspower.org/maxim/HowToProgram/Index
 
 
+;--( ROM Setup )---------------------------------------------------------------
+
+; SDSC tag and SMS rom header
+.sdsctag 1.2,"Hello World","Game Gear Assembler Version","szr"
+
 ; WLA-DX banking setup
 .memorymap
 defaultslot 0
@@ -16,11 +21,11 @@ banksize $8000
 banks 1
 .endro
 
-; SDSC tag and SMS rom header
-.sdsctag 1.2,"Hello World","Game Gear Assembler Version","szr"
-
 .bank 0 slot 0
 .org $0000
+
+
+;--( main )--------------------------------------------------------------------
 
 main:
     di      ; disable interrupts
@@ -67,9 +72,8 @@ Loop:
     jp Loop
 
 
-; --------------------------------------------------------------
-; Subroutines
-; --------------------------------------------------------------
+;--( Subroutines )-------------------------------------------------------------
+
 
 ; setUpVdpRegisters
 ;
@@ -82,7 +86,7 @@ setUpVdpRegisters:
 
 ; clearVram
 ;
-; set Video RAM to 0
+; fill Video RAM with 0s
 ;
 clearVram:
     ; set VRAM write address to 0 by outputting $4000 ORed with $0000
@@ -102,8 +106,9 @@ clearVram:
 
 ; loadColorPalette
 ;
-; load color palette to VRAM (two colors only).
+; load color palette to VRAM
 
+; two color only
 PaletteData:
 ;    GGGGRRRR   ----BBBB (Format Game Gear, G=Green, R=Red, B=Blue)
 .db %00000000, %00001111 ; Color 0: Blue
@@ -124,8 +129,9 @@ loadColorPalette:
 
 ; loadFontTiles
 
+; tiles with characters
 FontData:
-.include "FontData.asm"; tiles with characters
+.include "FontData.asm"
 FontDataEnd:
 
 loadFontTiles:
