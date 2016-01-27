@@ -1,4 +1,5 @@
 ; A Z-80 assembler program writes "Hello World" to the Game Gear screen
+;
 ; inspired by Maxim’s World of Stuff (SMS Tutorial)
 ; http://www.smspower.org/maxim/HowToProgram/Index
 
@@ -79,6 +80,24 @@ main:
 
 ; setUpVdpRegisters
 ;
+
+; VDP initialisation data
+;
+
+VdpData:
+.db $06 ; reg. 0, display and interrupt mode.
+.db $a1 ; reg. 1, display and interrupt mode.
+.db $ff ; reg. 2, name table address. $ff = name table at $3800.
+.db $ff ; reg. 3, n.a., always set it to $ff.
+.db $ff ; reg. 4, n.a., always set it to $ff.
+.db $ff ; reg. 5, sprite attribute table.
+.db $ff ; reg. 6, sprite tile address.
+.db $ff ; reg. 7, border color.
+.db $00 ; reg. 8, horizontal scroll value = 0.
+.db $00 ; reg. 9, vertical scroll value = 0.
+.db $ff ; reg. 10, raster line interrupt. Turn off line int. requests.
+VdpDataEnd:
+
 setUpVdpRegisters:
     ld hl,VdpData
     ld b,VdpDataEnd-VdpData
@@ -110,7 +129,7 @@ clearVram:
 ;
 ; load color palette to VRAM
 
-; two color only
+; two colors only
 PaletteData:
 ;    GGGGRRRR   ----BBBB (Format Game Gear, G=Green, R=Red, B=Blue)
 .db %00000000, %00001111 ; Color 0: Blue
@@ -177,31 +196,6 @@ Message:
 .dw $28,$45,$4c,$4c,$4f,$0c,$00,$37,$4f,$52,$4c,$44,$01
 MessageEnd:
 
-; VDP initialisation data
-VdpData:
-.db %00000110 ; reg. 0, display and interrupt mode.
-              ; bit 4 = line interrupt (disabled).
-              ; 5 = blank left column (disabled).
-              ; 6 = hori. scroll inhibit (disabled).
-              ; 7 = vert. scroll inhibit (disabled).
 
-.db %10100001 ; reg. 1, display and interrupt mode.
-              ; bit 0 = zoomed sprites (enabled).
-              ; 1 = 8 x 16 sprites (disabled).
-              ; 5 = frame interrupt (enabled).
-              ; 6 = display (blanked).
-
-.db $ff       ; reg. 2, name table address. $ff = name table at $3800.
-.db $ff       ; reg. 3, n.a., always set it to $ff.
-.db $ff       ; reg. 4, n.a., always set it to $ff.
-.db $ff       ; reg. 5, sprite attribute table.
-.db $ff       ; reg. 6, sprite tile address.
-.db %11110011 ; reg. 7, border color.
-              ; set to color 3 in bank 2.
-
-.db $00       ; reg. 8, horizontal scroll value = 0.
-.db $00       ; reg. 9, vertical scroll value = 0.
-.db $ff       ; reg. 10, raster line interrupt. Turn off line int. requests.
-VdpDataEnd:
 
 
