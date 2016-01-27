@@ -22,26 +22,16 @@ banks 1
 .bank 0 slot 0
 .org $0000
 
+main:
+    di      ; disable interrupts
+    im 1    ; Interrupt mode 1
 
-; Boot section
-;
-di      ; disable interrupts
-im 1    ; Interrupt mode 1
-ld sp, $dff0
+    ld sp, $dff0
 
-call setUpVdpRegisters
-call clearVram
-call loadColorPalette
-
-; **** load tiles (font) ***
-
-; set VRAM write address to tile index 0 by outputting $4000
-ld hl, $4000
-call prepareVram
-ld hl,FontData              ; Location of tile data
-ld bc,FontDataEnd-FontData  ; Counter for number of bytes to write
-call writeToVram
-
+    call setUpVdpRegisters
+    call clearVram
+    call loadColorPalette
+    call loadFontTiles
 
     ;==============================================================
     ; Write text to name table
@@ -113,6 +103,7 @@ clearVram:
 ; loadColorPalette
 ;
 ; load color palette to VRAM (two colors only).
+
 PaletteData:
 ;    GGGGRRRR   ----BBBB (Format Game Gear, G=Green, R=Red, B=Blue)
 .db %00000000, %00001111 ; Color 0: Blue
@@ -127,6 +118,21 @@ loadColorPalette:
     ; output palette data
     ld hl,PaletteData ; source of data
     ld bc,PaletteDataEnd-PaletteData  ; counter for number of bytes to write
+    call writeToVram
+    ret
+
+
+; loadFontTiles
+
+FontData:
+.include "FontData.asm"; tiles with characters
+FontDataEnd:
+
+loadFontTiles:
+    ld hl, $4000
+    call prepareVram
+    ld hl,FontData              ; Location of tile data
+    ld bc,FontDataEnd-FontData  ; Counter for number of bytes to write
     call writeToVram
     ret
 
@@ -190,6 +196,4 @@ VdpData:
 .db $ff       ; reg. 10, raster line interrupt. Turn off line int. requests.
 VdpDataEnd:
 
-FontData:
-.include "FontData.asm"
-FontDataEnd:
+
