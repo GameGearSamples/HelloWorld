@@ -41,22 +41,10 @@ main:
     call loadColorPalette
     call loadFontTiles
     call writeText
+    call turnOnScreen
 
-    ; Turn screen on
-    ld a,%11000000
-;          |||| |`- Zoomed sprites -> 16x16 pixels
-;          |||| `-- Doubled sprites -> 2 tiles per sprite, 8x16
-;          |||`---- 30 row/240 line mode
-;          ||`----- 28 row/224 line mode
-;          |`------ VBlank interrupts
-;          `------- Enable display
-    out ($bf),a
-    ld a,$81
-    out ($bf),a
-
-
-    InfiniteLoop:
-        jp InfiniteLoop
+InfiniteLoop:
+    jp InfiniteLoop
 
 
 ;--( Subroutines )-------------------------------------------------------------
@@ -171,6 +159,14 @@ writeText:
     call writeToVram
     ret
 
+; turnOnScreen
+
+turnOnScreen:
+    ld a,%11000000
+    out ($bf),a
+    ld a,$81
+    out ($bf),a
+    ret
 
 ; Set up vdp to receive data at vram address in HL.
 prepareVram:
