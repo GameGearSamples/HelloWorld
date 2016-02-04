@@ -6,7 +6,7 @@
 
 ;--( ROM Setup )---------------------------------------------------------------
 ;
-; see http://www.villehelin.com/wla.txt for WLA-DX directives
+; see http://www.villehelin.com/wla.txt for WLA-DX directives starting with "."
 
 ; SDSC tag and GG rom header
 .sdsctag 1.0, "Hello World", "Game Gear Assembler Version", "szr"
@@ -40,23 +40,7 @@ main:
     call clearVram
     call loadColorPalette
     call loadFontTiles
-
-    ;==============================================================
-    ; Write text to name table
-    ;==============================================================
-    ; 1. Set VRAM write address to name table index $cc
-    ; by outputting $4000 ORed with $3800+cc
-    ;
-    ; Game Gear: 102 empty cells, 3 lines with 6+20+6 tiles,  3*(6+20+6) + 6
-    ;            102 words = 204 bytes = $cc
-    ld a,$CC
-    out ($bf),a
-    ld a,$38|$40
-    out ($bf),a
-    ; 2. Output tilemap data
-    ld hl,Message
-    ld bc,MessageEnd-Message  ; Counter for number of bytes to write
-    call writeToVram
+    call writeText
 
     ; Turn screen on
     ld a,%11000000
@@ -163,6 +147,31 @@ loadFontTiles:
     call writeToVram
     ret
 
+; writeText
+
+; Text Message ("Hello, World!")
+Message:
+;   H   e   l   l   o   ,       W   o   r   l   d   !
+.dw $28,$45,$4c,$4c,$4f,$0c,$00,$37,$4f,$52,$4c,$44,$01
+MessageEnd:
+
+writeText:
+    ; Set VRAM write address to name table index $cc
+    ; by outputting $4000 ORed with $3800+cc
+    ;
+    ; Game Gear: 102 empty cells, 3 lines with 6+20+6 tiles,  3*(6+20+6) + 6
+    ;            102 words = 204 bytes = $cc
+    ld a,$CC
+    out ($bf),a
+    ld a,$38|$40
+    out ($bf),a
+    ; 2. Output tilemap data
+    ld hl,Message
+    ld bc,MessageEnd-Message  ; Counter for number of bytes to write
+    call writeToVram
+    ret
+
+
 ; Set up vdp to receive data at vram address in HL.
 prepareVram:
     push af
@@ -186,15 +195,6 @@ writeToVram:
     jp nz, writeToVram
     ret
 
-;==============================================================
-; Data
-;==============================================================
-
-; Text Message ("Hello, World!")
-Message:
-;   H   e   l   l   o   ,       W   o   r   l   d   !
-.dw $28,$45,$4c,$4c,$4f,$0c,$00,$37,$4f,$52,$4c,$44,$01
-MessageEnd:
 
 
 
