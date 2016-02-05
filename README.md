@@ -8,7 +8,7 @@ Toolchain (minimal):
 * make
 * wla-dx https://github.com/vhelin/wla-dx (Z80 assembler)
 
-IDE (used to integrate command line tools above):
+IDE (used to integrate command line tools above, an emulator to test and Git):
 * Qt Creator on OS X, http://www.qt.io/ide/
 
 Inspired by Maxim’s World of Stuff (SMS Tutorial)
