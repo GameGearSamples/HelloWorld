@@ -124,7 +124,7 @@ loadColorPalette:
 
 ; tiles with characters
 FontData:
-.include "FontData.asm"
+.include "FontData.inc"
 FontDataEnd:
 
 loadFontTiles:
